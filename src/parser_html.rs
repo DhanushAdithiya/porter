@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use crate::dom;
+use crate::{dom, parser::Parser};
 
-struct Parser {
+struct HtmlParser {
     pos: usize,
     input: String,
 }
 
-impl Parser {
+impl Parser for HtmlParser {
     fn next_char(&self) -> char {
         return self.input[self.pos..].chars().next().unwrap();
     }
@@ -43,7 +43,9 @@ impl Parser {
     fn consume_whitespace(&mut self) {
         self.consume_while(char::is_whitespace);
     }
+}
 
+impl HtmlParser {
     fn parse_tag_name(&mut self) -> String {
         self.consume_while(|c| match c {
             'a'..='z' | 'A'..='Z' | '0'..='9' => true,
