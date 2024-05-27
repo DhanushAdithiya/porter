@@ -27,28 +27,28 @@ struct SimpleSelector {
 
 type Argument = HashMap<String, Value>;
 
-#[derive(Debug)]
-enum Value {
+#[derive(Debug, PartialEq)]
+pub enum Value {
     Keyword(String),
     Size(f32, Unit),
     ColorValue(Color),
 }
 
-#[derive(Debug)]
-enum Unit {
+#[derive(Debug, PartialEq, Eq)]
+pub enum Unit {
     Px,
 }
 
-#[derive(Debug)]
-struct Color {
+#[derive(Debug, PartialEq, Eq)]
+pub struct Color {
     r: u8,
     g: u8,
     b: u8,
 }
 
-struct CssParser {
-    pos: usize,
-    input: String,
+pub struct CssParser {
+    pub pos: usize,
+    pub input: String,
 }
 
 impl Parser for CssParser {
@@ -194,7 +194,7 @@ impl CssParser {
         return arguments;
     }
 
-    fn parse_argument(&mut self) -> Argument {
+    pub fn parse_argument(&mut self) -> Argument {
         let mut argument = HashMap::new();
 
         loop {
@@ -209,10 +209,6 @@ impl CssParser {
         }
 
         return argument;
-    }
-
-    fn get_prev(&mut self) -> char {
-        return self.input.chars().nth(self.pos - 1).unwrap();
     }
 
     fn parse_key(&mut self) -> String {
