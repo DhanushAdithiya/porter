@@ -174,7 +174,6 @@ impl CssParser {
     }
 
     fn parse_identifier(&mut self) -> String {
-        // Hoping this works lmao
         return self.consume_while(|c| c != '{');
     }
 
@@ -196,28 +195,27 @@ impl CssParser {
 
     pub fn parse_argument(&mut self) -> Argument {
         let mut argument = HashMap::new();
+        self.consume_whitespace();
 
         loop {
-            self.consume_whitespace();
-            if self.next_char() == '}' {
-                self.consume_char();
-                break;
-            }
             let key = self.parse_key();
             let value = self.parse_value();
             argument.insert(key, value);
+            if self.next_char() == ';' {
+                self.consume_char();
+                break;
+            }
         }
 
         return argument;
     }
 
-    fn parse_key(&mut self) -> String {
+    pub fn parse_key(&mut self) -> String {
         let key = self.consume_while(is_valid_tag);
         return key;
     }
 
-    //      color: black;
-    fn parse_value(&mut self) -> Value {
+    pub fn parse_value(&mut self) -> Value {
         self.consume_char();
         self.consume_whitespace();
         match self.next_char() {
