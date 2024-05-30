@@ -201,16 +201,12 @@ impl CssParser {
         let mut argument = HashMap::new();
         self.consume_whitespace();
 
-        loop {
-            // BUG: This is causing some of the tests to fail fix it!
-            if self.next_char() == ';' {
-                self.consume_char();
-                break;
-            }
-            let key = self.parse_key();
-            let value = self.parse_value();
-            argument.insert(key, value);
+        if self.next_char() == ';' {
+            self.consume_char();
         }
+        let key = self.parse_key();
+        let value = self.parse_value();
+        argument.insert(key, value);
 
         return argument;
     }
@@ -221,9 +217,11 @@ impl CssParser {
     }
 
     pub fn parse_value(&mut self) -> Value {
-        self.consume_char();
+        println!("in this function");
+        self.consume_char(); // removes the ':' from the input
         self.consume_whitespace();
-        //self.current_char();
+        self.current_char();
+        println!("{}", self.input);
         match self.next_char() {
             c if c.is_digit(10) => {
                 let digit = self.consume_while(|c| c.is_digit(10));
