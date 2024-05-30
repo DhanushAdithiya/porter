@@ -217,11 +217,8 @@ impl CssParser {
     }
 
     pub fn parse_value(&mut self) -> Value {
-        println!("in this function");
         self.consume_char(); // removes the ':' from the input
         self.consume_whitespace();
-        self.current_char();
-        println!("{}", self.input);
         match self.next_char() {
             c if c.is_digit(10) => {
                 let digit = self.consume_while(|c| c.is_digit(10));
@@ -234,19 +231,21 @@ impl CssParser {
             c if c.is_alphabetic() => Value::Keyword(self.consume_while(|c| c != ';')),
             '(' => {
                 self.consume_char();
-                let r = self
+                let r: u8 = self
                     .consume_while(|c| c != ',')
-                    .parse::<u8>()
+                    .parse()
                     .expect("Could not parse color");
 
-                let g = self
+                self.consume_char(); // This is to remove ','
+                let g: u8 = self
                     .consume_while(|c| c != ',')
-                    .parse::<u8>()
+                    .parse()
                     .expect("Could not parse color");
 
-                let b = self
+                self.consume_char(); // This is to remove ','
+                let b: u8 = self
                     .consume_while(|c| c != ')')
-                    .parse::<u8>()
+                    .parse()
                     .expect("Could not parse color");
 
                 let color = Color { r, g, b };

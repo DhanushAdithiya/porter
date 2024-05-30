@@ -52,7 +52,7 @@ fn parsing_keyword_value() {
 
 #[test]
 fn parsing_color_value() {
-    let input = String::from(": (200,198,200);");
+    let input = String::from(": (200,189,200);");
     let mut css_parser = CssParser { pos: 0, input };
     let value = css_parser.parse_value();
     let op_color = Color {
