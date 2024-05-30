@@ -41,9 +41,9 @@ pub enum Unit {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
 }
 
 pub struct CssParser {
@@ -102,6 +102,10 @@ pub fn parse(source: String) -> Stylesheet {
 }
 
 impl CssParser {
+    fn current_char(&mut self) {
+        println!("{}", self.input.chars().nth(self.pos).unwrap())
+    }
+
     fn parse_rules(&mut self) -> Vec<Rule> {
         let mut rules = Vec::new();
 
@@ -198,13 +202,14 @@ impl CssParser {
         self.consume_whitespace();
 
         loop {
-            let key = self.parse_key();
-            let value = self.parse_value();
-            argument.insert(key, value);
+            // BUG: This is causing some of the tests to fail fix it!
             if self.next_char() == ';' {
                 self.consume_char();
                 break;
             }
+            let key = self.parse_key();
+            let value = self.parse_value();
+            argument.insert(key, value);
         }
 
         return argument;
@@ -218,9 +223,11 @@ impl CssParser {
     pub fn parse_value(&mut self) -> Value {
         self.consume_char();
         self.consume_whitespace();
+        //self.current_char();
         match self.next_char() {
             c if c.is_digit(10) => {
-                let digit = self.consume_while(|c| c != ';');
+                let digit = self.consume_while(|c| c.is_digit(10));
+                println!("{}", digit);
                 Value::Size(
                     digit.parse::<f32>().expect("Could not parse size"),
                     Unit::Px,
