@@ -1,3 +1,4 @@
+use core::panic;
 use std::collections::HashMap;
 
 use crate::parser::Parser;
@@ -133,10 +134,11 @@ impl CssParser {
 
         loop {
             selectors.push(Selector::Simple(self.parse_simple_selector()));
-            self.consume_whitespace();
             match self.next_char() {
                 ',' => {}
-                '{' => break,
+                '{' => {
+                    break;
+                }
                 c => panic!("CSS Parse Error: Invalid character {}", c),
             }
         }
@@ -156,7 +158,6 @@ impl CssParser {
             match self.next_char() {
                 '.' => {
                     self.consume_char();
-                    assert_eq!(self.consume_char(), '{');
                     simple_selector.class.push(self.parse_identifier());
                 }
                 '#' => {
@@ -183,30 +184,29 @@ impl CssParser {
 
     fn parse_arguments(&mut self) -> Vec<Argument> {
         assert_eq!(self.consume_char(), '{');
+        self.consume_whitespace();
+
         let mut arguments = Vec::new();
 
-        loop {
-            self.consume_whitespace();
-            if self.next_char() == '}' {
-                self.consume_char();
-                break;
-            }
-            arguments.push(self.parse_argument());
+        if self.next_char() == '}' {
+            self.consume_char();
         }
+        arguments.push(self.parse_argument());
 
+        // REALLY UGLY FIX
         return arguments;
     }
 
     pub fn parse_argument(&mut self) -> Argument {
         let mut argument = HashMap::new();
-        self.consume_whitespace();
 
-        if self.next_char() == ';' {
-            self.consume_char();
-        }
         let key = self.parse_key();
         let value = self.parse_value();
+
         argument.insert(key, value);
+
+        self.consume_whitespace();
+        self.consume_char();
 
         return argument;
     }
@@ -222,13 +222,18 @@ impl CssParser {
         match self.next_char() {
             c if c.is_digit(10) => {
                 let digit = self.consume_while(|c| c.is_digit(10));
-                println!("{}", digit);
-                Value::Size(
+                self.consume_while(|c| c != ';');
+                self.consume_char();
+                return Value::Size(
                     digit.parse::<f32>().expect("Could not parse size"),
                     Unit::Px,
-                )
+                );
             }
-            c if c.is_alphabetic() => Value::Keyword(self.consume_while(|c| c != ';')),
+            c if c.is_alphabetic() => {
+                let val = Value::Keyword(self.consume_while(|c| c != ';'));
+                self.consume_char();
+                return val;
+            }
             '(' => {
                 self.consume_char();
                 let r: u8 = self
@@ -247,6 +252,8 @@ impl CssParser {
                     .consume_while(|c| c != ')')
                     .parse()
                     .expect("Could not parse color");
+                self.consume_char();
+                self.consume_char();
 
                 let color = Color { r, g, b };
 

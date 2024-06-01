@@ -1,10 +1,10 @@
 #![cfg(test)]
 use crate::parser_css::*;
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 #[test]
 fn parsing_keyword_arguments() {
-    let input = String::from("display: flex;");
+    let input = String::from("display: flex;}");
     let mut css_parser = CssParser { pos: 0, input };
     let arg = css_parser.parse_argument();
     let output = HashMap::from([(String::from("display"), Value::Keyword("flex".to_string()))]);
@@ -13,7 +13,7 @@ fn parsing_keyword_arguments() {
 
 #[test]
 fn parsing_color_arguments() {
-    let input = String::from("color: (200,189,200)");
+    let input = String::from("color: (200,189,200);}");
     let mut css_parser = CssParser { pos: 0, input };
     let arg = css_parser.parse_argument();
     let op_color = Color {
@@ -27,7 +27,7 @@ fn parsing_color_arguments() {
 
 #[test]
 fn parsing_size_arguments() {
-    let input = String::from("width: 20px;");
+    let input = String::from("width: 20px;}");
     let mut css_parser = CssParser { pos: 0, input };
     let arg = css_parser.parse_argument();
     let output = HashMap::from([(String::from("width"), Value::Size(20.0, Unit::Px))]);

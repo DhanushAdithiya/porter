@@ -10,5 +10,5 @@ fn main() {
     let css = read_to_string("style.css").unwrap();
 
     let stylesheet = parser_css::parse(css);
-    println!("{:?}", stylesheet);
+    println!("{:#?}", stylesheet);
 }
